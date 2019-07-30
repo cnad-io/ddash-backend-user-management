@@ -1,0 +1,11 @@
+# CPU_REQUEST=
+# CPU_LIMIT=
+# MEMORY_REQUEST=
+# MEMORY_LIMIT=
+APP_NAME=user-management
+# BUILD_TAG=
+# MODE=jvm|native
+GIT_URL=https://github.com/cnad-io/wsao-1-back.git
+GIT_BRANCH=master
+GIT_CONTEXT_DIR=user-management
+SOURCE_SECRET=git-auth
