@@ -28,7 +28,7 @@ pipeline {
           env.ACTIVE_MODE = sh (
             script : 'oc get route ${APP_NAME} -o jsonpath="{ .spec.to.name }" -n ${PROD_NAMESPACE}',
             returnStdout: true
-          ).trim().replace("${APP_NAME}", "")
+          ).trim().replace("${APP_NAME}-", "")
           echo "Active mode: ${ACTIVE_MODE}"
           if ("${ACTIVE_MODE}" == 'blue') {
             env.NOT_ACTIVE_MODE = 'green'
@@ -48,7 +48,7 @@ pipeline {
       steps {
         echo 'Running build and tests'
         sh '''
-          ./mvnw clean package -Pnative
+          ./mvnw package -Pnative
         '''
         echo 'Generating container image'
         sh '''
