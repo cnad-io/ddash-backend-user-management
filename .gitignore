@@ -30,7 +30,7 @@ ObjectStore/
 *.rej
 
 # Maven
-.mvn/
+#.mvn/
 target/
 pom.xml.tag
 pom.xml.releaseBackup
