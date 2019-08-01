@@ -7,13 +7,45 @@ pipeline {
     PROD_NAMESPACE = "dino-dush-prod"
     APP_NAME = "user-management"
     JENKINS_TAG = "v${BUILD_NUMBER}".replace("/", "-")
-    GIT_CREDENTIALS = credentials('dino-dush-non-prod-git-auth')
   }
   options {
     buildDiscarder(logRotator(numToKeepStr:'10'))
     timeout(time: 20, unit: 'MINUTES')
   }
   stages {
+    stage("Prepare B/G Deploy") {
+      agent {
+        node {
+          label "master"
+        }
+      }
+      when {
+        expression { GIT_BRANCH ==~ /(.*master)/ }
+      }
+      steps {
+        script {
+          echo 'Get active mode'
+          try {
+            ACTIVE_MODE = sh (
+              script : 'oc get pod --selector=app=${APP_NAME} -o jsonpath="{ .items[0].metadata.labels.mode }" -n ${PROD_NAMESPACE}',
+              returnStdout: true
+            ).trim()
+            echo ACTIVE_MODE
+          } catch (error) {}
+          if ("${ACTIVE_MODE}" == '') {
+            env.ACTIVE_MODE = 'blue'
+          }
+          env.ACTIVE_MODE = ACTIVE_MODE
+          echo "Active mode: ${ACTIVE_MODE}"
+          if ("${ACTIVE_MODE}" == 'blue') {
+            env.NOT_ACTIVE_MODE = 'green'
+          } else {
+            env.NOT_ACTIVE_MODE = 'blue'
+          }
+          echo "Not Active mode: ${NOT_ACTIVE_MODE}"
+        }
+      }
+    }
     stage("Test and Build code") {
       agent {
         node {
@@ -21,21 +53,19 @@ pipeline {
         }
       }
       steps {
-        echo 'Running tests'
+        echo 'Running build and tests'
         sh '''
-          cd user-management/
-          ./mvnw test
+          ./mvnw clean package -Pnative
         '''
-        echo 'Running build'
+        echo 'Generating container image'
         sh '''
           oc patch bc ${APP_NAME} -p "{\\"spec\\":{\\"output\\":{\\"to\\":{\\"kind\\":\\"ImageStreamTag\\",\\"name\\":\\"${APP_NAME}:${JENKINS_TAG}\\"}}}}" -n ${NON_PROD_NAMESPACE}
-          oc start-build ${APP_NAME} --follow -n ${NON_PROD_NAMESPACE}
+          oc start-build ${APP_NAME} --from-dir=. --follow -n ${NON_PROD_NAMESPACE}
         '''
       }
       post {
         always {
-          // archive "user-management/**"
-          junit 'user-management/target/surefire-reports/TEST-*.xml'
+          junit 'target/surefire-reports/TEST-*.xml'
         }
         failure {
           echo "FAILURE"
@@ -58,8 +88,6 @@ pipeline {
             echo 'Resume deployment'
             sh 'oc rollout resume dc/${APP_NAME} -n ${NON_PROD_NAMESPACE}'
           } catch (error) {}
-        }
-        script {
           try {
             echo 'Rollout deployment'
             sh 'oc rollout latest dc/${APP_NAME} -n ${NON_PROD_NAMESPACE}'
@@ -75,34 +103,6 @@ pipeline {
           waitUnit: 'sec'
       }
     }
-    stage("Prepare B/G Deploy") {
-      agent {
-        node {
-          label "master"
-        }
-      }
-      when {
-        expression { GIT_BRANCH ==~ /(.*master)/ }
-      }
-      steps {
-        script {
-          echo 'Get active mode'
-          env.ACTIVE_MODE = sh '''
-            oc get pod --selector=app=${APP_NAME} -o jsonpath='{ .items[0].metadata.labels.mode }' -n ${PROD_NAMESPACE}
-          '''
-          if (env.ACTIVE_MODE == '') {
-            env.ACTIVE_MODE = 'blue'
-          }
-          echo "Active mode: ${ACTIVE_MODE}"
-          if (env.ACTIVE_MODE == 'blue') {
-            env.NOT_ACTIVE_MODE = 'green'
-          } else {
-            env.NOT_ACTIVE_MODE = 'blue'
-          }
-          echo "Not Active mode: ${NOT_ACTIVE_MODE}"
-        }
-      }
-    }
     stage("B/G Deploy Prod") {
       agent {
         node {
@@ -115,7 +115,6 @@ pipeline {
       steps {
         echo 'Tag image for namespace'
         sh '''
-          printenv
           oc tag ${NON_PROD_NAMESPACE}/${APP_NAME}:${JENKINS_TAG} ${PROD_NAMESPACE}/${APP_NAME}:${JENKINS_TAG} -n ${PROD_NAMESPACE}
         '''
         echo '### set env vars and image for deployment ###'
@@ -128,13 +127,13 @@ pipeline {
             echo 'Resume deployment'
             sh 'oc rollout resume dc/${APP_NAME}-${NOT_ACTIVE_MODE} -n ${PROD_NAMESPACE}'
           } catch (error) {}
-        }
-        script {
           try {
             echo 'Rollout deployment'
             sh 'oc rollout latest dc/${APP_NAME}-${NOT_ACTIVE_MODE} -n ${PROD_NAMESPACE}'
           } catch (error) {}
         }
+
+        sh 'oc scale --replicas=1 dc ${APP_NAME}-${NOT_ACTIVE_MODE} -n ${PROD_NAMESPACE}'
         echo '### Verify OCP Deployment ###'
         openshiftVerifyDeployment depCfg: "${APP_NAME}-${NOT_ACTIVE_MODE}",
           namespace: env.PROD_NAMESPACE,
@@ -146,7 +145,7 @@ pipeline {
 
         echo '### Change balance configuration ###'
         sh '''
-          oc set route-backends ${APP_NAME} ${APP_NAME}-${ACTIVE_MODE}=0 ${APP_NAME}-${NOT_ACTIVE_MODE}=0 -n ${PROD_NAMESPACE}
+          oc set route-backends ${APP_NAME} ${APP_NAME}-${ACTIVE_MODE}=0 ${APP_NAME}-${NOT_ACTIVE_MODE}=100 -n ${PROD_NAMESPACE}
         '''
       }
     }
@@ -163,7 +162,7 @@ pipeline {
         script {
           def userInput = false
           try {
-            timeout(time: 1, unit: "MINUTES") {
+            timeout(time: 5, unit: "MINUTES") {
               userInput = input(
                 id: 'Proceed1', message: 'Was this successful?', parameters: [
                 [$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: 'Please confirm you agree with this']
@@ -198,10 +197,12 @@ pipeline {
         }
       }
       steps {
-        echo 'Idle older deployment'
-        sh '''
-          oc idle ${APP_NAME}-${ACTIVE_MODE} -n ${PROD_NAMESPACE}
-        '''
+        script {
+          echo 'Idle older deployment'
+          try {
+            sh 'oc idle ${APP_NAME}-${ACTIVE_MODE} -n ${PROD_NAMESPACE}'
+          } catch (error) {}
+        }
       }
     }
     stage("Canceling deploy") {

@@ -56,7 +56,7 @@ openshift_cluster_content:
       - pipeline-cd
       - build
     - name: unique-build
-      template: "{{ inventory_dir }}/../templates/user-management/build-template.yml"
+      template: "{{ inventory_dir }}/../templates/user-management/build-docker-template.yml"
       params: "{{ inventory_dir }}/../params/user-management/build"
       namespace: "{{ non_prod_namespace }}"
       tags:
@@ -74,7 +74,7 @@ openshift_cluster_content:
       - service
       - non-prod
     - name: database
-      template: "{{ inventory_dir }}/../templates/user-management/mariadb-template.yml"
+      template: "{{ inventory_dir }}/../templates/user-management/mariadb-template-ephemeral.yml"
       params: "{{ inventory_dir }}/../params/user-management/mariadb-non-prod"
       namespace: "{{ non_prod_namespace }}"
       tags:
@@ -102,7 +102,7 @@ openshift_cluster_content:
       - service
       - prod
     - name: database
-      template: "{{ inventory_dir }}/../templates/user-management/mariadb-template.yml"
+      template: "{{ inventory_dir }}/../templates/user-management/mariadb-template-ephemeral.yml"
       params: "{{ inventory_dir }}/../params/user-management/mariadb-prod"
       namespace: "{{ prod_namespace }}"
       tags:

@@ -180,11 +180,6 @@ parameters:
 - name: DATABASE_URL
   required: true
   value: jdbc:mariadb://user-management-db:3306/userdb
-- name: APP_TAG
-  required: true
-  value: latest
-- name: NAMESPACE
-  required: true
 - name: PIPELINES_NAMESPACE
   required: true
 - name: DEPLOYER_USER
