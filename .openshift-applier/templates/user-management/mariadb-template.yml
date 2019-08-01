@@ -14,6 +14,9 @@ objects:
       template.openshift.io/expose-password: '{.data[''database-password'']}'
       template.openshift.io/expose-root_password: '{.data[''database-root-password'']}'
       template.openshift.io/expose-username: '{.data[''database-user'']}'
+    labels:
+      app: ${APP_NAME}
+      kind: mariadb
     name: ${DATABASE_SERVICE_NAME}
   stringData:
     database-name: ${MYSQL_DATABASE}
@@ -25,6 +28,9 @@ objects:
   metadata:
     annotations:
       template.openshift.io/expose-uri: mysql://{.spec.clusterIP}:{.spec.ports[?(.name=="mariadb")].port}
+    labels:
+      app: ${APP_NAME}
+      kind: mariadb
     name: ${DATABASE_SERVICE_NAME}
   spec:
     ports:
@@ -32,9 +38,14 @@ objects:
       port: 3306
     selector:
       name: ${DATABASE_SERVICE_NAME}
+      app: ${APP_NAME}
+      kind: mariadb
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:
+    labels:
+      app: ${APP_NAME}
+      kind: mariadb
     name: ${DATABASE_SERVICE_NAME}
   spec:
     accessModes:
@@ -47,16 +58,23 @@ objects:
   metadata:
     annotations:
       template.alpha.openshift.io/wait-for-ready: "true"
+    labels:
+      app: ${APP_NAME}
+      kind: mariadb
     name: ${DATABASE_SERVICE_NAME}
   spec:
     replicas: 1
     selector:
+      app: ${APP_NAME}
+      kind: mariadb
       name: ${DATABASE_SERVICE_NAME}
     strategy:
       type: Recreate
     template:
       metadata:
         labels:
+          app: ${APP_NAME}
+          kind: mariadb
           name: ${DATABASE_SERVICE_NAME}
       spec:
         containers:
@@ -152,3 +170,5 @@ parameters:
 - name: VOLUME_CAPACITY
   required: true
   value: 1Gi
+- name: APP_NAME
+  value: user-management

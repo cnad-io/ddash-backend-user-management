@@ -49,7 +49,7 @@ parameters:
   value: user-management
 - name: GIT_URL
   required: true
-  value: https://github.com/cnad-io/wsao-1-back.git
+  value: https://github.com/cnad-io/ddash-backend-user-management.git
 - name: GIT_BRANCH
   required: true
   value: develop

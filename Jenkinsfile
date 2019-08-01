@@ -34,8 +34,9 @@ pipeline {
           } catch (error) {}
           if ("${ACTIVE_MODE}" == '') {
             env.ACTIVE_MODE = 'blue'
+          } else {
+            env.ACTIVE_MODE = ACTIVE_MODE
           }
-          env.ACTIVE_MODE = ACTIVE_MODE
           echo "Active mode: ${ACTIVE_MODE}"
           if ("${ACTIVE_MODE}" == 'blue') {
             env.NOT_ACTIVE_MODE = 'green'

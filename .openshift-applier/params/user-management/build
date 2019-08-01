@@ -4,8 +4,7 @@
 # MEMORY_LIMIT=
 APP_NAME=user-management
 # BUILD_TAG=
-# MODE=jvm|native
-GIT_URL=https://github.com/cnad-io/wsao-1-back.git
+GIT_URL=https://github.com/cnad-io/ddash-backend-user-management.git
 GIT_BRANCH=master
-GIT_CONTEXT_DIR=user-management
+# GIT_CONTEXT_DIR=
 SOURCE_SECRET=git-auth

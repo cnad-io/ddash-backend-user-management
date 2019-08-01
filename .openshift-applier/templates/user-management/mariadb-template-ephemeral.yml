@@ -14,6 +14,9 @@ objects:
       template.openshift.io/expose-password: '{.data[''database-password'']}'
       template.openshift.io/expose-root_password: '{.data[''database-root-password'']}'
       template.openshift.io/expose-username: '{.data[''database-user'']}'
+    labels:
+      app: ${APP_NAME}
+      kind: mariadb
     name: ${DATABASE_SERVICE_NAME}
   stringData:
     database-name: ${MYSQL_DATABASE}
@@ -25,6 +28,9 @@ objects:
   metadata:
     annotations:
       template.openshift.io/expose-uri: mysql://{.spec.clusterIP}:{.spec.ports[?(.name=="mariadb")].port}
+    labels:
+      app: ${APP_NAME}
+      kind: mariadb
     name: ${DATABASE_SERVICE_NAME}
   spec:
     ports:
@@ -37,16 +43,23 @@ objects:
   metadata:
     annotations:
       template.alpha.openshift.io/wait-for-ready: "true"
+    labels:
+      app: ${APP_NAME}
+      kind: mariadb
     name: ${DATABASE_SERVICE_NAME}
   spec:
     replicas: 1
     selector:
+      app: ${APP_NAME}
+      kind: mariadb
       name: ${DATABASE_SERVICE_NAME}
     strategy:
       type: Recreate
     template:
       metadata:
         labels:
+          app: ${APP_NAME}
+          kind: mariadb
           name: ${DATABASE_SERVICE_NAME}
       spec:
         containers:
@@ -138,3 +151,5 @@ parameters:
 - name: MARIADB_VERSION
   required: true
   value: "10.2"
+- name: APP_NAME
+  value: user-management

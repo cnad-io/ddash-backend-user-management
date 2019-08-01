@@ -1,7 +1,0 @@
-# CPU_REQUEST=
-# CPU_LIMIT=
-# MEMORY_REQUEST=
-# MEMORY_LIMIT=
-APP_NAME=user-management
-DATABASE_URL=jdbc:mariadb://user-management-db:3306/userdb
-PIPELINES_NAMESPACE=dino-dush-non-prod
