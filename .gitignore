@@ -39,3 +39,4 @@ release.properties
 user-management.zip
 
 .openshift-applier/encrypted-vars.yml
+.openshift-applier/encrypted-vars.yml
