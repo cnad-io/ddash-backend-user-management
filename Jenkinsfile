@@ -48,7 +48,7 @@ pipeline {
       steps {
         echo 'Running build and tests'
         sh '''
-          ./mvnw package -Pnative
+          ./mvnw -Dmaven.test.skip=true package -Pnative 
         '''
         echo 'Generating container image'
         sh '''
