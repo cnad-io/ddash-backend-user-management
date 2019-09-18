@@ -48,7 +48,7 @@ pipeline {
       steps {
         echo 'Running build and tests'
         sh '''
-          ./mvn -Dmaven.test.skip=true package  
+          ./mvnw -Dmaven.test.skip=true package  
         '''
         echo 'Generating container image'
         sh '''
