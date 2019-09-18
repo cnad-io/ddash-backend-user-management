@@ -48,7 +48,7 @@ pipeline {
       steps {
         echo 'Running build and tests'
         sh '''
-          ./mvnw -Dmaven.test.skip=true -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL=300 package -Pnative 
+          ./mvnw -Dmaven.test.skip=true -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL=600 package -Pnative 
         '''
         echo 'Generating container image'
         sh '''
