@@ -46,9 +46,9 @@ pipeline {
         }
       }
       steps {
-        script {
-          System.setProperty("org.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL", "3800");
-        } 
+        //script {
+        //  System.setProperty("org.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL", "3800");
+        //} 
         echo 'Running build and tests'
         sh '''
           ./mvnw -Dmaven.test.skip=true package -Pnative 
