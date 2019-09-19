@@ -49,10 +49,10 @@ pipeline {
         //script {
         //  System.setProperty("org.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL", "3800");
         //} 
-        echo 'Running build and tests'
-        sh '''
-          ./mvnw -Dmaven.test.skip=true package -Pnative 
-        '''
+        //echo 'Running build and tests'
+        //sh '''
+        //  ./mvnw -Dmaven.test.skip=true package -Pnative 
+        //'''
         echo 'Generating container image'
         sh '''
           oc patch bc ${APP_NAME} -p "{\\"spec\\":{\\"output\\":{\\"to\\":{\\"kind\\":\\"ImageStreamTag\\",\\"name\\":\\"${APP_NAME}:${JENKINS_TAG}\\"}}}}" -n ${NON_PROD_NAMESPACE}
