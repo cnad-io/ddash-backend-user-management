@@ -53,6 +53,10 @@ pipeline {
         //sh '''
         //  ./mvnw -Dmaven.test.skip=true package -Pnative 
         //'''
+        echo 'Running build and tests'
+        sh '''
+          ./mvnw -Dmaven.test.skip=true package 
+        '''
         echo 'Generating container image'
         sh '''
           oc patch bc ${APP_NAME} -p "{\\"spec\\":{\\"output\\":{\\"to\\":{\\"kind\\":\\"ImageStreamTag\\",\\"name\\":\\"${APP_NAME}:${JENKINS_TAG}\\"}}}}" -n ${NON_PROD_NAMESPACE}
