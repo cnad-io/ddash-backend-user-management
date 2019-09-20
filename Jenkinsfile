@@ -59,9 +59,9 @@ pipeline {
         '''
          echo 'Running build and tests'
         sh '''
-          ./mkdir target/delivery
-          ./mv target/*-runner.jar target/delivery/. 
-          ./mv target/lib target/delivery/.
+          mkdir target/delivery
+          mv target/*-runner.jar target/delivery/. 
+          mv target/lib target/delivery/.
         '''
         echo 'Generating container image'
         sh '''
