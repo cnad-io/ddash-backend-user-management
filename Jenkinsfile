@@ -55,12 +55,12 @@ pipeline {
         //'''
         echo 'Running build and tests'
         sh '''
-          ./mvnw -Dmaven.test.skip=true package 
+          ./mvn -Dmaven.test.skip=true package 
         '''
         echo 'Generating container image'
         sh '''
           oc patch bc ${APP_NAME} -p "{\\"spec\\":{\\"output\\":{\\"to\\":{\\"kind\\":\\"ImageStreamTag\\",\\"name\\":\\"${APP_NAME}:${JENKINS_TAG}\\"}}}}" -n ${NON_PROD_NAMESPACE}
-          oc start-build ${APP_NAME} --from-dir=. --follow -n ${NON_PROD_NAMESPACE}
+          oc start-build ${APP_NAME} --from-dir=target/. --follow -n ${NON_PROD_NAMESPACE}
         '''
       }
       post {
