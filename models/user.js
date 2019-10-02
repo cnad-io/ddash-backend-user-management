@@ -20,37 +20,17 @@ User.init({
     allowNull: false,
     primaryKey: true
   },
-  score: {
-    type: Sequelize.DATE
-  }
-}, {
-  sequelize,
-  modelName: 'users-room'
-})
-
-class Room extends Model {}
-
-Room.init({
-  id: {
+  username: {
     type: Sequelize.STRING,
-    allowNull: false,
-    primaryKey: true
-  },
-  date: {
-    type: Sequelize.DATEONLY
+    allowNull: false
   }
 }, {
   sequelize,
-  modelName: 'room'
-})
-
-Room.hasMany(User, {
-  as: 'playersList',
-  foreignKey: 'room_id'
+  modelName: 'users'
 })
 
 if (process.env.NODE_ENV !== 'production') {
   sequelize.sync()
 }
 
-module.exports = Room
+module.exports = User

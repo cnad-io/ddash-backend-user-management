@@ -16,7 +16,12 @@
     "db:docker-start": "docker start mariadb",
     "db:delete": "docker rm mariadb -f"
   },
-  "keywords": ["nodejs", "fastify", "sequelize", "mariadb"],
+  "keywords": [
+    "nodejs",
+    "fastify",
+    "sequelize",
+    "mariadb"
+  ],
   "author": "Caio Medeiros Pinto <camedeir@redhat.com>",
   "license": "ISC",
   "dependencies": {
@@ -24,6 +29,7 @@
     "fastify-autoload": "^0.6.0",
     "fastify-cli": "^1.0.0",
     "fastify-plugin": "^1.5.0",
+    "fastify-swagger": "^2.4.0",
     "mariadb": "^2.1.1",
     "sequelize": "^5.19.1"
   },

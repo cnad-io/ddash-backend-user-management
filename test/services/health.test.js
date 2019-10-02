@@ -11,8 +11,6 @@ test('Health function', (t) => {
     url: '/health'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(response.statusCode, 200)
-    t.strictEqual(response.headers['content-type'], 'application/json; charset=utf-8')
     t.deepEqual(JSON.parse(res.payload), { message: 'ok' })
   })
 })
